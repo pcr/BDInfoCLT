@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{CF10DEBE-9A1B-4CD6-B566-E6013C1E6CB9}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BDInfoCLT</RootNamespace>
+    <AssemblyName>BDInfoCLT</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <PublishUrl>Z:\BDInfoCLT\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <TargetCulture>en</TargetCulture>
+    <ProductName>BDInfoCli</ProductName>
+    <PublisherName>Jeffrey Bahr</PublisherName>
+    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationVersion>0.0.1.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>3</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>999A171F24BFFEEBD7F12AA92031301F237CC16E</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>BDInfoLib_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\Toma4025-Rumax-Bluray-disc.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DiscUtils">
+      <HintPath>..\packages\Discutils.0.11.0.2\lib\net40\DiscUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="DiscUtils.Common">
+      <HintPath>..\packages\Discutils.0.11.0.2\lib\net40\DiscUtils.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BDInfoSettings.cs" />
+    <Compile Include="BDROM\TSCodecAC3.cs" />
+    <Compile Include="BDROM\TSCodecAVC.cs" />
+    <Compile Include="BDROM\BDROM.cs" />
+    <Compile Include="BDROM\TSCodecDTS.cs" />
+    <Compile Include="BDROM\TSCodecDTSHD.cs" />
+    <Compile Include="BDROM\TSCodecHEVC.cs" />
+    <Compile Include="BDROM\TSCodecLPCM.cs" />
+    <Compile Include="BDROM\TSCodecMPEG2.cs" />
+    <Compile Include="BDROM\TSCodecMVC.cs" />
+    <Compile Include="BDROM\TSCodecTrueHD.cs" />
+    <Compile Include="BDROM\TSInterleavedFile.cs" />
+    <Compile Include="BDROM\TSStreamBuffer.cs" />
+    <Compile Include="BDROM\TSStreamClipFile.cs" />
+    <Compile Include="BDROM\LanguageCodes.cs" />
+    <Compile Include="BDROM\TSStreamClip.cs" />
+    <Compile Include="BDROM\TSStreamFile.cs" />
+    <Compile Include="BDROM\TSPlaylistFile.cs" />
+    <Compile Include="BDROM\TSStream.cs" />
+    <Compile Include="BDROM\TSCodecVC1.cs" />
+    <Compile Include="FormReport.cs" />
+    <Compile Include="libcmdline\Attributes\AssemblyLicenseAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\AssemblyUsageAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\BaseOptionAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\HelpOptionAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\HelpVerbOptionAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\MultiLineTextAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\OptionArrayAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\OptionAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\OptionListAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\ParserStateAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\ValueListAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\ValueOptionAttribute.cs" />
+    <Compile Include="libcmdline\Attributes\VerbOptionAttribute.cs" />
+    <Compile Include="libcmdline\BadOptionInfo.cs" />
+    <Compile Include="libcmdline\Extensions\CharExtensions.cs" />
+    <Compile Include="libcmdline\Extensions\StringExtensions.cs" />
+    <Compile Include="libcmdline\GlobalSuppressions.cs" />
+    <Compile Include="libcmdline\Infrastructure\Assumes.cs" />
+    <Compile Include="libcmdline\Infrastructure\Pair.cs" />
+    <Compile Include="libcmdline\Infrastructure\PopsicleSetter.cs" />
+    <Compile Include="libcmdline\Infrastructure\ReflectionCache.cs" />
+    <Compile Include="libcmdline\Infrastructure\ReflectionHelper.cs" />
+    <Compile Include="libcmdline\Infrastructure\SR1.strings.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SR.tt</DependentUpon>
+    </Compile>
+    <Compile Include="libcmdline\IParserState.cs" />
+    <Compile Include="libcmdline\Parser.cs" />
+    <Compile Include="libcmdline\ParserException.cs" />
+    <Compile Include="libcmdline\ParserSettings.cs" />
+    <Compile Include="libcmdline\ParserState.cs" />
+    <Compile Include="libcmdline\ParsingError.cs" />
+    <Compile Include="libcmdline\Parsing\ArgumentParser.cs" />
+    <Compile Include="libcmdline\Parsing\IArgumentEnumerator.cs" />
+    <Compile Include="libcmdline\Parsing\LongOptionParser.cs" />
+    <Compile Include="libcmdline\Parsing\OneCharStringEnumerator.cs" />
+    <Compile Include="libcmdline\Parsing\OptionGroupParser.cs" />
+    <Compile Include="libcmdline\Parsing\OptionInfo.cs" />
+    <Compile Include="libcmdline\Parsing\OptionMap.cs" />
+    <Compile Include="libcmdline\Parsing\PresentParserState.cs" />
+    <Compile Include="libcmdline\Parsing\PropertyWriter.cs" />
+    <Compile Include="libcmdline\Parsing\StringArrayEnumerator.cs" />
+    <Compile Include="libcmdline\Parsing\TargetCapabilitiesExtensions.cs" />
+    <Compile Include="libcmdline\Parsing\ValueMapper.cs" />
+    <Compile Include="libcmdline\Text\BaseSentenceBuilder.cs" />
+    <Compile Include="libcmdline\Text\CopyrightInfo.cs" />
+    <Compile Include="libcmdline\Text\EnglishSentenceBuilder.cs" />
+    <Compile Include="libcmdline\Text\FormatOptionHelpTextEventArgs.cs" />
+    <Compile Include="libcmdline\Text\HeadingInfo.cs" />
+    <Compile Include="libcmdline\Text\HelpText.cs" />
+    <Compile Include="libcmdline\Text\_ParsingErrorsHandler.cs" />
+    <Compile Include="runner.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ToolBox.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="app.config" />
+    <None Include="libcmdline\CommandLine.csproj.DotSettings" />
+    <None Include="libcmdline\Infrastructure\SR.strings" />
+    <None Include="libcmdline\Infrastructure\SR.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SR1.strings.cs</LastGenOutput>
+    </None>
+    <None Include="libcmdline\Settings.StyleCop" />
+    <None Include="Properties\app.manifest" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="libcmdline\CommandLine.csproj" />
+    <Content Include="libcmdline\CommandLine35.csproj" />
+    <Content Include="libcmdline\CustomDictionary.xml" />
+    <Content Include="Resources\Toma4025-Rumax-Bluray-disc.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="libcmdline\Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
