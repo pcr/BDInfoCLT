@@ -2,13 +2,15 @@ BDInfo Command Line Tookkit
 ======
 
 The main program is from BDInfo Project.
-I Modified it to run in Windows's Command Line or in Linux Shell with Mono.
+I Modified it to run in Windows's Command Line or Linux Shell with Mono.
 
 Now, support BDMV folder & BDDisk ISO. 
 
 I plan to improve the command param and help for more function, 
 but the work is very busy, so the update will not be very regular.
 
+
+BDInfo
 ======
 
 (source origin: http://www.cinemasquid.com/blu-ray/tools/bdinfo)
