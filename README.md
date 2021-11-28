@@ -1,4 +1,4 @@
-BDInfo Command Line Tookkit
+BDInfo Command Line Toolkit
 ======
 
 The main program is from BDInfo Project.
