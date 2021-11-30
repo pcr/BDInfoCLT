@@ -21,21 +21,21 @@ Usage: BDInfoCLT [--version] [--help]
 	   
 Options:
 
-  --version Just show version of the program
+  --version                   Just show version of the program
 
-  -f, --full-scan Do a full scan
+  -f, --full-scan             Do a full scan
 
-  -s, --simple Output with simple mode
-  
-  --summary Generate summary in report
+  -s, --simple                Output with simple mode
+
+  --summary                   Generate summary in report
 
   -o <dir>, --output=<dir>    Output report to a folder
 
-  -v (verbose) Print additional details.
+  -v                          (verbose) Print additional details.
 
-  -m, --mpls Specify the playlists to scan, non-interactive
+  -m, --mpls                  Specify the playlists to scan, non-interactive
 
-  -h, --help Display this help screen.
+  -h, --help                  Display this help screen.
 ```
 
 
