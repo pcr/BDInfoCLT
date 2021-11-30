@@ -6,8 +6,37 @@ I Modified it to run in Windows's Command Line or Linux Shell with Mono.
 
 Now, support BDMV folder & BDDisk ISO. 
 
-I plan to improve the command param and help for more function, 
+I plan to improve the command param and help for more function, <p>
 but the work is very busy, so the update will not be very regular.
+
+------
+
+  
+<p><B>BDInfoCLT 0.7.5.8</B></p>
+
+```
+Licensed under LGPL V2.1<p>
+Usage: BDInfoCLT [--version] [--help]
+       BDInfoCLT <BD Folder/ISO File> [options]
+	   
+Options:
+
+  --version Just show version of the program
+
+  -s, --simple Output with simple mode
+
+  -f, --full-scan Do a full scan
+  
+  --summary Generate summary in report
+
+  -o, --output Output report to a file
+
+  -v (verbose) Print additional details.
+
+  -m, --mpls Specify the playlists to scan, non-interactive
+
+  -h, --help Display this help screen.
+```
 
 
 BDInfo
