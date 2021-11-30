@@ -23,13 +23,13 @@ Options:
 
   --version Just show version of the program
 
-  -s, --simple Output with simple mode
-
   -f, --full-scan Do a full scan
+
+  -s, --simple Output with simple mode
   
   --summary Generate summary in report
 
-  -o, --output Output report to a file
+  -o <dir>, --output=<dir>    Output report to a folder
 
   -v (verbose) Print additional details.
 

@@ -18,16 +18,16 @@ namespace BDInfoCLT
         [Option("version", Required = false, HelpText = "Just show version of the program")]
         public bool showVersion { get; set; }
 
+        [Option('f', "full-scan", Required = false, HelpText = "Do a full scan")]
+        public bool fullScan { get; set; }
+
         [Option('s', "simple", Required = false, HelpText = "Output with simple mode")]
         public bool simpleMode { get; set; }
 
         [Option("summary", Required = false, HelpText = "Generate summary in report")]
         public bool genSummary { get; set; }
 
-        [Option('f', "full-scan", Required = false, HelpText = "Do a full scan")]
-        public bool fullScan { get; set; }
-
-        [Option('o', "output", Required = false, HelpText = "Output report to a file")]
+        [Option('o', "output", MetaValue ="<dir>", Required = false, HelpText = "Output report to a folder")]
         public string output { get; set; }
 
         [Option('v', Required = false, HelpText = "(verbose) Print additional details.")]
