@@ -1,4 +1,4 @@
-﻿using BDInfoCLT;
+﻿using BDInfo;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,42 +6,260 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace BDInfo
+namespace BDInfoCLT
 {
     public class FormReport
     {
-        private List<TSPlaylistFile> Playlists;
-
-        public void Generate(BDROM BDROM, List<TSPlaylistFile> playlists, BDInfo.runner.ScanBDROMResult scanResult, String savePath)
+        private class PlayListInfo
         {
-            Playlists = playlists;
+            public string title;
+            public string discSize;
 
-            StreamWriter reportFile = null;
-           /* if (BDInfoSettings.AutosaveReport)
-            {*/
-                string reportName = string.Format(
+            public string totalLength;
+            public string totalLengthShort;
+            public string totalSize;
+            public string totalBitrate;
+
+            public string totalAngleLength;
+            public string totalAngleSize;
+            public string totalAngleBitrate;
+
+            public List<string> angleLengths;
+            public List<string> angleSizes;
+            public List<string> angleBitrates;
+            public List<string> angleTotalLengths;
+            public List<string> angleTotalSizes;
+            public List<string> angleTotalBitrates;
+
+            public string videoCodec = "";
+            public string videoBitrate = "";
+
+            public string audio1 = "";
+            public string languageCode1 = "";
+            public string audio2 = "";
+
+            public void generate(BDROM BDROM, TSPlaylistFile playlist)
+            {
+                title = playlist.Name;
+                discSize = string.Format("{0:N0}", BDROM.Size);
+
+                TimeSpan playlistTotalLength =
+                    new TimeSpan((long)(playlist.TotalLength * 10000000));
+                totalLength = string.Format(
+                    "{0:D1}:{1:D2}:{2:D2}.{3:D3}",
+                    playlistTotalLength.Hours,
+                    playlistTotalLength.Minutes,
+                    playlistTotalLength.Seconds,
+                    playlistTotalLength.Milliseconds);
+                totalLengthShort = string.Format(
+                    "{0:D1}:{1:D2}:{2:D2}",
+                    playlistTotalLength.Hours,
+                    playlistTotalLength.Minutes,
+                    playlistTotalLength.Seconds);
+                totalSize = string.Format(
+                    "{0:N0}", playlist.TotalSize);
+                totalBitrate = string.Format(
+                    "{0:F2}",
+                    Math.Round((double)playlist.TotalBitRate / 10000) / 100);
+
+                TimeSpan playlistAngleLength =
+                    new TimeSpan((long)(playlist.TotalAngleLength * 10000000));
+                totalAngleLength = string.Format(
+                    "{0:D1}:{1:D2}:{2:D2}.{3:D3}",
+                    playlistAngleLength.Hours,
+                    playlistAngleLength.Minutes,
+                    playlistAngleLength.Seconds,
+                    playlistAngleLength.Milliseconds);
+                totalAngleSize = string.Format(
+                    "{0:N0}", playlist.TotalAngleSize);
+                totalAngleBitrate = string.Format(
+                    "{0:F2}",
+                    Math.Round((double)playlist.TotalAngleBitRate / 10000) / 100);
+
+                angleLengths = new List<string>();
+                angleSizes = new List<string>();
+                angleBitrates = new List<string>();
+                angleTotalLengths = new List<string>();
+                angleTotalSizes = new List<string>();
+                angleTotalBitrates = new List<string>();
+                if (playlist.AngleCount > 0)
+                {
+                    for (int angleIndex = 0; angleIndex < playlist.AngleCount; angleIndex++)
+                    {
+                        double angleLength = 0;
+                        ulong angleSize = 0;
+                        ulong angleTotalSize = 0;
+                        if (angleIndex < playlist.AngleClips.Count &&
+                            playlist.AngleClips[angleIndex] != null)
+                        {
+                            foreach (TSStreamClip clip in playlist.AngleClips[angleIndex].Values)
+                            {
+                                angleTotalSize += clip.PacketSize;
+                                if (clip.AngleIndex == angleIndex + 1)
+                                {
+                                    angleSize += clip.PacketSize;
+                                    angleLength += clip.Length;
+                                }
+                            }
+                        }
+
+                        angleSizes.Add(string.Format(
+                            "{0:N0}", angleSize));
+
+                        TimeSpan angleTimeSpan =
+                            new TimeSpan((long)(angleLength * 10000000));
+
+                        angleLengths.Add(string.Format(
+                            "{0:D1}:{1:D2}:{2:D2}.{3:D3}",
+                            angleTimeSpan.Hours,
+                            angleTimeSpan.Minutes,
+                            angleTimeSpan.Seconds,
+                            angleTimeSpan.Milliseconds));
+
+                        angleTotalSizes.Add(string.Format(
+                            "{0:N0}", angleTotalSize));
+
+                        angleTotalLengths.Add(totalLength);
+
+                        double angleBitrate = 0;
+                        if (angleLength > 0)
+                        {
+                            angleBitrate = Math.Round((double)(angleSize * 8) / angleLength / 10000) / 100;
+                        }
+                        angleBitrates.Add(string.Format("{0:F2}", angleBitrate));
+
+                        double angleTotalBitrate = 0;
+                        if (playlist.TotalLength > 0)
+                        {
+                            angleTotalBitrate = Math.Round((double)(angleTotalSize * 8) / playlist.TotalLength / 10000) / 100;
+                        }
+                        angleTotalBitrates.Add(string.Format(
+                            "{0:F2}", angleTotalBitrate));
+                    }
+                }
+
+                videoCodec = "";
+                videoBitrate = "";
+                if (playlist.VideoStreams.Count > 0)
+                {
+                    TSStream videoStream = playlist.VideoStreams[0];
+                    videoCodec = videoStream.CodecAltName;
+                    videoBitrate = string.Format(
+                        "{0:F2}", Math.Round((double)videoStream.BitRate / 10000) / 100);
+                }
+
+                audio1 = "";
+                languageCode1 = "";
+                if (playlist.AudioStreams.Count > 0)
+                {
+                    TSAudioStream audioStream = playlist.AudioStreams[0];
+
+                    languageCode1 = audioStream.LanguageCode;
+
+                    audio1 = string.Format(
+                        "{0} {1}",
+                        audioStream.CodecAltName,
+                        audioStream.ChannelDescription);
+
+                    if (audioStream.BitRate > 0)
+                    {
+                        audio1 += string.Format(
+                            " {0}Kbps",
+                            (int)Math.Round((double)audioStream.BitRate / 1000));
+                    }
+
+                    if (audioStream.SampleRate > 0 &&
+                        audioStream.BitDepth > 0)
+                    {
+                        audio1 += string.Format(
+                            " ({0}kHz/{1}-bit)",
+                            (int)Math.Round((double)audioStream.SampleRate / 1000),
+                            audioStream.BitDepth);
+                    }
+                }
+
+                audio2 = "";
+                if (playlist.AudioStreams.Count > 1)
+                {
+                    for (int i = 1; i < playlist.AudioStreams.Count; i++)
+                    {
+                        TSAudioStream audioStream = playlist.AudioStreams[i];
+
+                        if (audioStream.LanguageCode == languageCode1 &&
+                            audioStream.StreamType != TSStreamType.AC3_PLUS_SECONDARY_AUDIO &&
+                            audioStream.StreamType != TSStreamType.DTS_HD_SECONDARY_AUDIO &&
+                            !(audioStream.StreamType == TSStreamType.AC3_AUDIO &&
+                              audioStream.ChannelCount == 2))
+                        {
+                            audio2 = string.Format(
+                                "{0} {1}",
+                                audioStream.CodecAltName, audioStream.ChannelDescription);
+
+                            if (audioStream.BitRate > 0)
+                            {
+                                audio2 += string.Format(
+                                    " {0}Kbps",
+                                    (int)Math.Round((double)audioStream.BitRate / 1000));
+                            }
+
+                            if (audioStream.SampleRate > 0 &&
+                                audioStream.BitDepth > 0)
+                            {
+                                audio2 += string.Format(
+                                    " ({0}kHz/{1}-bit)",
+                                    (int)Math.Round((double)audioStream.SampleRate / 1000),
+                                    audioStream.BitDepth);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void generateFullReport(BDROM BDROM, List<TSPlaylistFile> playlists, runner.ScanBDROMResult scanResult, String savePath, bool genSummary)
+        {
+            TextWriter reportWrite = null;
+            if (savePath == null)
+            {
+                reportWrite = Console.Out;
+            }
+            else
+            {
+                string reportName = string.Format("BDINFO.{0}.txt",
+                    BDROM.VolumeLabel);
+                reportWrite = File.CreateText(Path.Combine(savePath, reportName));
+            }
+            /* if (BDInfoSettings.AutosaveReport)
+             {
+            string reportName = string.Format(
                     "BDINFO.{0}.txt",
                     BDROM.VolumeLabel);
 
                 reportFile = File.CreateText(Path.Combine(savePath, reportName));
             //}
-            //textBoxReport.Text = "";
+            //textBoxReport.Text = "";*/
 
             string report = "";
+
             string protection = (BDROM.IsBDPlus ? "BD+" : BDROM.IsUHD ? "AACS2" : "AACS");
-            string bdjava = (BDROM.IsBDJava ? "Yes" : "No");
 
             if (!string.IsNullOrEmpty(BDROM.DiscTitle))
+            {
                 report += string.Format(
                    "{0,-16}{1}\r\n", "Disc Title:", BDROM.DiscTitle);
-            report += string.Format(
+                report += string.Format(
                 "{0,-16}{1}\r\n", "Disc Label:", BDROM.VolumeLabel);
+            }
+            else
+            {
+                report += string.Format(
+                "{0,-16}{1}\r\n", "Disc Title:", BDROM.VolumeLabel);
+            }
             report += string.Format(
                 "{0,-16}{1:N0} bytes\r\n", "Disc Size:", BDROM.Size);
             report += string.Format(
                 "{0,-16}{1}\r\n", "Protection:", protection);
-            report += string.Format(
-                "{0,-16}{1}\r\n", "BD-Java:", bdjava);
 
             List<string> extraFeatures = new List<string>();
             if (BDROM.IsUHD)
@@ -112,181 +330,8 @@ namespace BDInfo
             {
                 string summary = "";
 
-                string title = playlist.Name;
-                string discSize = string.Format(
-                    "{0:N0}", BDROM.Size);
-
-                TimeSpan playlistTotalLength =
-                    new TimeSpan((long)(playlist.TotalLength * 10000000));
-                string totalLength = string.Format(
-                    "{0:D1}:{1:D2}:{2:D2}.{3:D3}",
-                    playlistTotalLength.Hours,
-                    playlistTotalLength.Minutes,
-                    playlistTotalLength.Seconds,
-                    playlistTotalLength.Milliseconds);
-                string totalLengthShort = string.Format(
-                    "{0:D1}:{1:D2}:{2:D2}",
-                    playlistTotalLength.Hours,
-                    playlistTotalLength.Minutes,
-                    playlistTotalLength.Seconds);
-                string totalSize = string.Format(
-                    "{0:N0}", playlist.TotalSize);
-                string totalBitrate = string.Format(
-                    "{0:F2}",
-                    Math.Round((double)playlist.TotalBitRate / 10000) / 100);
-
-                TimeSpan playlistAngleLength =
-                    new TimeSpan((long)(playlist.TotalAngleLength * 10000000));
-                string totalAngleLength = string.Format(
-                    "{0:D1}:{1:D2}:{2:D2}.{3:D3}",
-                    playlistAngleLength.Hours,
-                    playlistAngleLength.Minutes,
-                    playlistAngleLength.Seconds,
-                    playlistAngleLength.Milliseconds);
-                string totalAngleSize = string.Format(
-                    "{0:N0}", playlist.TotalAngleSize);
-                string totalAngleBitrate = string.Format(
-                    "{0:F2}",
-                    Math.Round((double)playlist.TotalAngleBitRate / 10000) / 100);
-
-                List<string> angleLengths = new List<string>();
-                List<string> angleSizes = new List<string>();
-                List<string> angleBitrates = new List<string>();
-                List<string> angleTotalLengths = new List<string>();
-                List<string> angleTotalSizes = new List<string>();
-                List<string> angleTotalBitrates = new List<string>();
-                if (playlist.AngleCount > 0)
-                {
-                    for (int angleIndex = 0; angleIndex < playlist.AngleCount; angleIndex++)
-                    {
-                        double angleLength = 0;
-                        ulong angleSize = 0;
-                        ulong angleTotalSize = 0;
-                        if (angleIndex < playlist.AngleClips.Count &&
-                            playlist.AngleClips[angleIndex] != null)
-                        {
-                            foreach (TSStreamClip clip in playlist.AngleClips[angleIndex].Values)
-                            {
-                                angleTotalSize += clip.PacketSize;
-                                if (clip.AngleIndex == angleIndex + 1)
-                                {
-                                    angleSize += clip.PacketSize;
-                                    angleLength += clip.Length;
-                                }
-                            }
-                        }
-
-                        angleSizes.Add(string.Format(
-                            "{0:N0}", angleSize));
-
-                        TimeSpan angleTimeSpan =
-                            new TimeSpan((long)(angleLength * 10000000));
-
-                        angleLengths.Add(string.Format(
-                            "{0:D1}:{1:D2}:{2:D2}.{3:D3}",
-                            angleTimeSpan.Hours,
-                            angleTimeSpan.Minutes,
-                            angleTimeSpan.Seconds,
-                            angleTimeSpan.Milliseconds));
-
-                        angleTotalSizes.Add(string.Format(
-                            "{0:N0}", angleTotalSize));
-
-                        angleTotalLengths.Add(totalLength);
-
-                        double angleBitrate = 0;
-                        if (angleLength > 0)
-                        {
-                            angleBitrate = Math.Round((double)(angleSize * 8) / angleLength / 10000) / 100;
-                        }
-                        angleBitrates.Add(string.Format("{0:F2}", angleBitrate));
-
-                        double angleTotalBitrate = 0;
-                        if (playlist.TotalLength > 0)
-                        {
-                            angleTotalBitrate = Math.Round((double)(angleTotalSize * 8) / playlist.TotalLength / 10000) / 100;
-                        }
-                        angleTotalBitrates.Add(string.Format(
-                            "{0:F2}", angleTotalBitrate));
-                    }
-                }
-
-                string videoCodec = "";
-                string videoBitrate = "";
-                if (playlist.VideoStreams.Count > 0)
-                {
-                    TSStream videoStream = playlist.VideoStreams[0];
-                    videoCodec = videoStream.CodecAltName;
-                    videoBitrate = string.Format(
-                        "{0:F2}", Math.Round((double)videoStream.BitRate / 10000) / 100);
-                }
-
-                string audio1 = "";
-                string languageCode1 = "";
-                if (playlist.AudioStreams.Count > 0)
-                {
-                    TSAudioStream audioStream = playlist.AudioStreams[0];
-
-                    languageCode1 = audioStream.LanguageCode;
-
-                    audio1 = string.Format(
-                        "{0} {1}",
-                        audioStream.CodecAltName,
-                        audioStream.ChannelDescription);
-
-                    if (audioStream.BitRate > 0)
-                    {
-                        audio1 += string.Format(
-                            " {0}Kbps",
-                            (int)Math.Round((double)audioStream.BitRate / 1000));
-                    }
-
-                    if (audioStream.SampleRate > 0 &&
-                        audioStream.BitDepth > 0)
-                    {
-                        audio1 += string.Format(
-                            " ({0}kHz/{1}-bit)",
-                            (int)Math.Round((double)audioStream.SampleRate / 1000),
-                            audioStream.BitDepth);
-                    }
-                }
-
-                string audio2 = "";
-                if (playlist.AudioStreams.Count > 1)
-                {
-                    for (int i = 1; i < playlist.AudioStreams.Count; i++)
-                    {
-                        TSAudioStream audioStream = playlist.AudioStreams[i];
-
-                        if (audioStream.LanguageCode == languageCode1 &&
-                            audioStream.StreamType != TSStreamType.AC3_PLUS_SECONDARY_AUDIO &&
-                            audioStream.StreamType != TSStreamType.DTS_HD_SECONDARY_AUDIO &&
-                            !(audioStream.StreamType == TSStreamType.AC3_AUDIO &&
-                              audioStream.ChannelCount == 2))
-                        {
-                            audio2 = string.Format(
-                                "{0} {1}",
-                                audioStream.CodecAltName, audioStream.ChannelDescription);
-
-                            if (audioStream.BitRate > 0)
-                            {
-                                audio2 += string.Format(
-                                    " {0}Kbps",
-                                    (int)Math.Round((double)audioStream.BitRate / 1000));
-                            }
-
-                            if (audioStream.SampleRate > 0 &&
-                                audioStream.BitDepth > 0)
-                            {
-                                audio2 += string.Format(
-                                    " ({0}kHz/{1}-bit)",
-                                    (int)Math.Round((double)audioStream.SampleRate / 1000),
-                                    audioStream.BitDepth);
-                            }
-                            break;
-                        }
-                    }
-                }
+                PlayListInfo info = new PlayListInfo();
+                info.generate(BDROM, playlist);
 
                 report += "\r\n";
                 report += "********************\r\n";
@@ -334,234 +379,25 @@ namespace BDInfo
 
                 report += string.Format(
                     "{0,-64}{1,-8}{2,-8}{3,-16}{4,-16}{5,-8}{6,-8}{7,-42}{8}\r\n",
-                    title,
-                    videoCodec,
-                    totalLengthShort,
-                    totalSize,
-                    discSize,
-                    totalBitrate,
-                    videoBitrate,
-                    audio1,
-                    audio2);
+                    info.title,
+                    info.videoCodec,
+                    info.totalLengthShort,
+                    info.totalSize,
+                    info.discSize,
+                    info.totalBitrate,
+                    info.videoBitrate,
+                    info.audio1,
+                    info.audio2);
 
                 report += "[/code]\r\n";
                 report += "\r\n";
                 report += "[code]\r\n";
 
-                report += "\r\n";
-                report += "DISC INFO:\r\n";
-                report += "\r\n";
-
-                report += string.Format(
-                    "{0,-16}{1}\r\n", "Disc Title:", BDROM.VolumeLabel);
-                report += string.Format(
-                    "{0,-16}{1:N0} bytes\r\n", "Disc Size:", BDROM.Size);
-                report += string.Format(
-                    "{0,-16}{1}\r\n", "Protection:", protection);
-                report += string.Format(
-                    "{0,-16}{1}\r\n", "BD-Java:", bdjava);
-                if (extraFeatures.Count > 0)
-                {
-                    report += string.Format(
-                        "{0,-16}{1}\r\n", "Extras:", string.Join(", ", extraFeatures.ToArray()));
-                }
-                report += string.Format(
-                    "{0,-16}{1}\r\n", "BDInfo:", Application.ProductVersion);
-
-                report += "\r\n";
-                report += "PLAYLIST REPORT:\r\n";
-                report += "\r\n";
-                report += string.Format(
-                    "{0,-24}{1}\r\n", "Name:", title);
-                report += string.Format(
-                    "{0,-24}{1} (h:m:s.ms)\r\n", "Length:", totalLength);
-                report += string.Format(
-                    "{0,-24}{1:N0} bytes\r\n", "Size:", totalSize);
-                report += string.Format(
-                    "{0,-24}{1} Mbps\r\n", "Total Bitrate:", totalBitrate);
-                if (playlist.AngleCount > 0)
-                {
-                    for (int angleIndex = 0; angleIndex < playlist.AngleCount; angleIndex++)
-                    {
-                        report += "\r\n";
-                        report += string.Format(
-                            "{0,-24}{1} (h:m:s.ms) / {2} (h:m:s.ms)\r\n", string.Format("Angle {0} Length:", angleIndex + 1),
-                            angleLengths[angleIndex], angleTotalLengths[angleIndex]);
-                        report += string.Format(
-                            "{0,-24}{1:N0} bytes / {2:N0} bytes\r\n", string.Format("Angle {0} Size:", angleIndex + 1),
-                            angleSizes[angleIndex], angleTotalSizes[angleIndex]);
-                        report += string.Format(
-                            "{0,-24}{1} Mbps / {2} Mbps\r\n", string.Format("Angle {0} Total Bitrate:", angleIndex + 1),
-                            angleBitrates[angleIndex], angleTotalBitrates[angleIndex], angleIndex);
-                    }
-                    report += "\r\n";
-                    report += string.Format(
-                        "{0,-24}{1} (h:m:s.ms)\r\n", "All Angles Length:", totalAngleLength);
-                    report += string.Format(
-                        "{0,-24}{1} bytes\r\n", "All Angles Size:", totalAngleSize);
-                    report += string.Format(
-                        "{0,-24}{1} Mbps\r\n", "All Angles Bitrate:", totalAngleBitrate);
-                }
-                /*
-                report += string.Format(
-                    "{0,-24}{1}\r\n", "Description:", "");
-                 */
-
-                summary += string.Format(
-                    "Disc Title: {0}\r\n", BDROM.VolumeLabel);
-                summary += string.Format(
-                    "Disc Size: {0:N0} bytes\r\n", BDROM.Size);
-                summary += string.Format(
-                    "Protection: {0}\r\n", protection);
-                summary += string.Format(
-                    "BD-Java: {0}\r\n", bdjava);
-                summary += string.Format(
-                    "Playlist: {0}\r\n", title);
-                summary += string.Format(
-                    "Size: {0:N0} bytes\r\n", totalSize);
-                summary += string.Format(
-                    "Length: {0}\r\n", totalLength);
-                summary += string.Format(
-                    "Total Bitrate: {0} Mbps\r\n", totalBitrate);
-
-                if (playlist.HasHiddenTracks)
-                {
-                    report += "\r\n(*) Indicates included stream hidden by this playlist.\r\n";
-                }
-
-                if (playlist.VideoStreams.Count > 0)
-                {
-                    report += "\r\n";
-                    report += "VIDEO:\r\n";
-                    report += "\r\n";
-                    report += string.Format(
-                        "{0,-24}{1,-20}{2,-16}\r\n",
-                        "Codec",
-                        "Bitrate",
-                        "Description");
-                    report += string.Format(
-                        "{0,-24}{1,-20}{2,-16}\r\n",
-                        "-----",
-                        "-------",
-                        "-----------");
-
-                    foreach (TSStream stream in playlist.SortedStreams)
-                    {
-                        if (!stream.IsVideoStream) continue;
-
-                        string streamName = stream.CodecName;
-                        if (stream.AngleIndex > 0)
-                        {
-                            streamName += string.Format(
-                                " ({0})", stream.AngleIndex);
-                        }
-
-                        string streamBitrate = string.Format(
-                            "{0:D}",
-                            (int)Math.Round((double)stream.BitRate / 1000));
-                        if (stream.AngleIndex > 0)
-                        {
-                            streamBitrate += string.Format(
-                                " ({0:D})",
-                                (int)Math.Round((double)stream.ActiveBitRate / 1000));
-                        }
-                        streamBitrate += " kbps";
-
-                        report += string.Format(
-                            "{0,-24}{1,-20}{2,-16}\r\n",
-                            (stream.IsHidden ? "* " : "") + streamName,
-                            streamBitrate,
-                            stream.Description);
-
-                        summary += string.Format(
-                            (stream.IsHidden ? "* " : "") + "Video: {0} / {1} / {2}\r\n",
-                            streamName,
-                            streamBitrate,
-                            stream.Description);
-                    }
-                }
-
-                if (playlist.AudioStreams.Count > 0)
-                {
-                    report += "\r\n";
-                    report += "AUDIO:\r\n";
-                    report += "\r\n";
-                    report += string.Format(
-                        "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
-                        "Codec",
-                        "Language",
-                        "Bitrate",
-                        "Description");
-                    report += string.Format(
-                       "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
-                        "-----",
-                        "--------",
-                        "-------",
-                        "-----------");
-
-                    foreach (TSStream stream in playlist.SortedStreams)
-                    {
-                        if (!stream.IsAudioStream) continue;
-
-                        string streamBitrate = string.Format(
-                            "{0:D} kbps",
-                            (int)Math.Round((double)stream.BitRate / 1000));
-
-                        report += string.Format(
-                            "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
-                            (stream.IsHidden ? "* " : "") + stream.CodecName,
-                            stream.LanguageName,
-                            streamBitrate,
-                            stream.Description);
-
-                        summary += string.Format(
-                            (stream.IsHidden ? "* " : "") + "Audio: {0} / {1} / {2}\r\n",
-                            stream.LanguageName,
-                            stream.CodecName,
-                            stream.Description);
-                    }
-                }
-
-                if (playlist.GraphicsStreams.Count > 0)
-                {
-                    report += "\r\n";
-                    report += "SUBTITLES:\r\n";
-                    report += "\r\n";
-                    report += string.Format(
-                        "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
-                        "Codec",
-                        "Language",
-                        "Bitrate",
-                        "Description");
-                    report += string.Format(
-                        "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
-                        "-----",
-                        "--------",
-                        "-------",
-                        "-----------");
-
-                    foreach (TSStream stream in playlist.SortedStreams)
-                    {
-                        if (!stream.IsGraphicsStream) continue;
-
-                        string streamBitrate = string.Format(
-                            "{0:F3} kbps",
-                            (double)stream.BitRate / 1000);
-
-                        report += string.Format(
-                            "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
-                            (stream.IsHidden ? "* " : "") + stream.CodecName,
-                            stream.LanguageName,
-                            streamBitrate,
-                            stream.Description);
-
-                        summary += string.Format(
-                            (stream.IsHidden ? "* " : "") + "Subtitle: {0} / {1}\r\n",
-                            stream.LanguageName,
-                            streamBitrate,
-                            stream.Description);
-                    }
-                }
+                string r;
+                string s;
+                generatePlayListReport(BDROM, playlist, protection, extraFeatures, info, out r, out s);
+                report += r;
+                summary += s;
 
                 if (playlist.TextStreams.Count > 0)
                 {
@@ -1014,16 +850,16 @@ namespace BDInfo
                 report += "<---- END FORUMS PASTE ---->\r\n";
                 report += "\r\n";
 
-                if (BDInfoSettings.GenerateTextSummary)
+                if (genSummary)
                 {
                     report += "QUICK SUMMARY:\r\n\r\n";
                     report += summary;
                     report += "\r\n";
                 }
 
-                if (/*BDInfoSettings.AutosaveReport &&*/ reportFile != null)
+                if (/*BDInfoSettings.AutosaveReport &&*/ reportWrite != null)
                 {
-                    try { reportFile.Write(report); }
+                    try { reportWrite.Write(report); }
                     catch { }
                 }
                 //textBoxReport.Text += report;
@@ -1031,19 +867,380 @@ namespace BDInfo
                 GC.Collect();
             }
 
-            if (/*BDInfoSettings.AutosaveReport &&*/ reportFile != null)
+            if (/*BDInfoSettings.AutosaveReport &&*/ reportWrite != null)
             {
-                try { reportFile.Write(report); }
+                try { reportWrite.Write(report); }
                 catch { }
 
             }
             //textBoxReport.Text += report;
 
-            if (reportFile != null)
+            if (reportWrite != null)
             {
-                reportFile.Close();
+                reportWrite.Close();
             }
 
+        }
+
+
+        public void generateSimpleReport(BDROM BDROM, List<TSPlaylistFile> playlists, runner.ScanBDROMResult scanResult, String savePath, bool genSummary)
+        {
+            TextWriter reportWrite = null;
+            if (savePath == null)
+            {
+                reportWrite = Console.Out;
+            }
+            else
+            {
+                string reportName = string.Format("BDINFO.{0}.txt",
+                    BDROM.VolumeLabel);
+                reportWrite = File.CreateText(Path.Combine(savePath, reportName));
+            }
+            /* if (BDInfoSettings.AutosaveReport)
+             {
+            string reportName = string.Format(
+                    "BDINFO.{0}.txt",
+                    BDROM.VolumeLabel);
+
+                reportFile = File.CreateText(Path.Combine(savePath, reportName));
+            //}
+            //textBoxReport.Text = "";*/
+
+            string report = "";
+
+            string protection = (BDROM.IsBDPlus ? "BD+" : BDROM.IsUHD ? "AACS2" : "AACS");
+
+            List<string> extraFeatures = new List<string>();
+            if (BDROM.IsUHD)
+            {
+                extraFeatures.Add("Ultra HD");
+            }
+            if (BDROM.IsBDJava)
+            {
+                extraFeatures.Add("BD-Java");
+            }
+            if (BDROM.Is50Hz)
+            {
+                extraFeatures.Add("50Hz Content");
+            }
+            if (BDROM.Is3D)
+            {
+                extraFeatures.Add("Blu-ray 3D");
+            }
+            if (BDROM.IsDBOX)
+            {
+                extraFeatures.Add("D-BOX Motion Code");
+            }
+            if (BDROM.IsPSP)
+            {
+                extraFeatures.Add("PSP Digital Copy");
+            }
+
+
+            if (scanResult.ScanException != null)
+            {
+                report += string.Format(
+                    "WARNING: Report is incomplete because: {0}\r\n",
+                    scanResult.ScanException.Message);
+            }
+            if (scanResult.FileExceptions.Count > 0)
+            {
+                report += "WARNING: File errors were encountered during scan:\r\n";
+                foreach (string fileName in scanResult.FileExceptions.Keys)
+                {
+                    Exception fileException = scanResult.FileExceptions[fileName];
+                    report += string.Format(
+                        "\r\n{0}\t{1}\r\n", fileName, fileException.Message);
+                    report += string.Format(
+                        "{0}\r\n", fileException.StackTrace);
+                }
+            }
+
+            foreach (TSPlaylistFile playlist in playlists)
+            {
+                string summary = "";
+
+                PlayListInfo info = new PlayListInfo();
+                info.generate(BDROM, playlist);
+
+
+                report += "[code]\r\n";
+
+                string r;
+                string s;
+                generatePlayListReport(BDROM, playlist, protection, extraFeatures, info, out r, out s);
+                report += r;
+                summary += s;
+
+                report += "\r\n";
+                report += "[/code]\r\n";
+
+                if (genSummary)
+                {
+                    report += "QUICK SUMMARY:\r\n\r\n";
+                    report += summary;
+                    report += "\r\n";
+                }
+
+                if (/*BDInfoSettings.AutosaveReport &&*/ reportWrite != null)
+                {
+                    try { reportWrite.Write(report); }
+                    catch { }
+                }
+                //textBoxReport.Text += report;
+                report = "";
+                GC.Collect();
+            }
+
+            if (/*BDInfoSettings.AutosaveReport &&*/ reportWrite != null)
+            {
+                try { reportWrite.Write(report); }
+                catch { }
+
+            }
+            //textBoxReport.Text += report;
+
+            if (reportWrite != null)
+            {
+                reportWrite.Close();
+            }
+
+        }
+
+        private void generatePlayListReport(BDROM BDROM, TSPlaylistFile playlist,
+            string protection, List<string> extraFeatures, PlayListInfo info,
+            out string report, out string summary)
+        {
+            report = "";
+            summary = "";
+
+            report += "\r\n";
+            report += "DISC INFO:\r\n";
+            report += "\r\n";
+
+            if (!string.IsNullOrEmpty(BDROM.DiscTitle))
+            {
+                report += string.Format(
+                   "{0,-16}{1}\r\n", "Disc Title:", BDROM.DiscTitle);
+                report += string.Format(
+                "{0,-16}{1}\r\n", "Disc Label:", BDROM.VolumeLabel);
+            }
+            else
+            {
+                report += string.Format(
+                "{0,-16}{1}\r\n", "Disc Title:", BDROM.VolumeLabel);
+            }
+            report += string.Format(
+                "{0,-16}{1:N0} bytes\r\n", "Disc Size:", BDROM.Size);
+            report += string.Format(
+                "{0,-16}{1}\r\n", "Protection:", protection);
+            if (extraFeatures.Count > 0)
+            {
+                report += string.Format(
+                    "{0,-16}{1}\r\n", "Extras:", string.Join(", ", extraFeatures.ToArray()));
+            }
+            report += string.Format(
+                "{0,-16}{1}\r\n", "BDInfo:", Application.ProductVersion);
+
+            report += "\r\n";
+            report += "PLAYLIST REPORT:\r\n";
+            report += "\r\n";
+            report += string.Format(
+                "{0,-24}{1}\r\n", "Name:", info.title);
+            report += string.Format(
+                "{0,-24}{1} (h:m:s.ms)\r\n", "Length:", info.totalLength);
+            report += string.Format(
+                "{0,-24}{1:N0} bytes\r\n", "Size:", info.totalSize);
+            report += string.Format(
+                "{0,-24}{1} Mbps\r\n", "Total Bitrate:", info.totalBitrate);
+            if (playlist.AngleCount > 0)
+            {
+                for (int angleIndex = 0; angleIndex < playlist.AngleCount; angleIndex++)
+                {
+                    report += "\r\n";
+                    report += string.Format(
+                        "{0,-24}{1} (h:m:s.ms) / {2} (h:m:s.ms)\r\n", string.Format("Angle {0} Length:", angleIndex + 1),
+                        info.angleLengths[angleIndex], info.angleTotalLengths[angleIndex]);
+                    report += string.Format(
+                        "{0,-24}{1:N0} bytes / {2:N0} bytes\r\n", string.Format("Angle {0} Size:", angleIndex + 1),
+                        info.angleSizes[angleIndex], info.angleTotalSizes[angleIndex]);
+                    report += string.Format(
+                        "{0,-24}{1} Mbps / {2} Mbps\r\n", string.Format("Angle {0} Total Bitrate:", angleIndex + 1),
+                        info.angleBitrates[angleIndex], info.angleTotalBitrates[angleIndex], angleIndex);
+                }
+                report += "\r\n";
+                report += string.Format(
+                    "{0,-24}{1} (h:m:s.ms)\r\n", "All Angles Length:", info.totalAngleLength);
+                report += string.Format(
+                    "{0,-24}{1} bytes\r\n", "All Angles Size:", info.totalAngleSize);
+                report += string.Format(
+                    "{0,-24}{1} Mbps\r\n", "All Angles Bitrate:", info.totalAngleBitrate);
+            }
+            /*
+            report += string.Format(
+                "{0,-24}{1}\r\n", "Description:", "");
+             */
+
+            if (!string.IsNullOrEmpty(BDROM.DiscTitle))
+            {
+                summary += string.Format("Disc Title: {0}\r\n", BDROM.DiscTitle);
+                summary += string.Format("Disc Label: {0}\r\n", BDROM.VolumeLabel);
+            }
+            else
+            {
+                summary += string.Format("Disc Title: {0}\r\n", BDROM.VolumeLabel);
+            }
+            summary += string.Format(
+                "Disc Size: {0:N0} bytes\r\n", BDROM.Size);
+            summary += string.Format(
+                "Protection: {0}\r\n", protection);
+            summary += string.Format(
+                "Playlist: {0}\r\n", info.title);
+            summary += string.Format(
+                "Size: {0:N0} bytes\r\n", info.totalSize);
+            summary += string.Format(
+                "Length: {0}\r\n", info.totalLength);
+            summary += string.Format(
+                "Total Bitrate: {0} Mbps\r\n", info.totalBitrate);
+
+            if (playlist.HasHiddenTracks)
+            {
+                report += "\r\n(*) Indicates included stream hidden by this playlist.\r\n";
+            }
+
+            if (playlist.VideoStreams.Count > 0)
+            {
+                report += "\r\n";
+                report += "VIDEO:\r\n";
+                report += "\r\n";
+                report += string.Format(
+                    "{0,-24}{1,-20}{2,-16}\r\n",
+                    "Codec",
+                    "Bitrate",
+                    "Description");
+                report += string.Format(
+                    "{0,-24}{1,-20}{2,-16}\r\n",
+                    "-----",
+                    "-------",
+                    "-----------");
+
+                foreach (TSStream stream in playlist.SortedStreams)
+                {
+                    if (!stream.IsVideoStream) continue;
+
+                    string streamName = stream.CodecName;
+                    if (stream.AngleIndex > 0)
+                    {
+                        streamName += string.Format(
+                            " ({0})", stream.AngleIndex);
+                    }
+
+                    string streamBitrate = string.Format(
+                        "{0:D}",
+                        (int)Math.Round((double)stream.BitRate / 1000));
+                    if (stream.AngleIndex > 0)
+                    {
+                        streamBitrate += string.Format(
+                            " ({0:D})",
+                            (int)Math.Round((double)stream.ActiveBitRate / 1000));
+                    }
+                    streamBitrate += " kbps";
+
+                    report += string.Format(
+                        "{0,-24}{1,-20}{2,-16}\r\n",
+                        (stream.IsHidden ? "* " : "") + streamName,
+                        streamBitrate,
+                        stream.Description);
+
+                    summary += string.Format(
+                        (stream.IsHidden ? "* " : "") + "Video: {0} / {1} / {2}\r\n",
+                        streamName,
+                        streamBitrate,
+                        stream.Description);
+                }
+            }
+
+            if (playlist.AudioStreams.Count > 0)
+            {
+                report += "\r\n";
+                report += "AUDIO:\r\n";
+                report += "\r\n";
+                report += string.Format(
+                    "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
+                    "Codec",
+                    "Language",
+                    "Bitrate",
+                    "Description");
+                report += string.Format(
+                   "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
+                    "-----",
+                    "--------",
+                    "-------",
+                    "-----------");
+
+                foreach (TSStream stream in playlist.SortedStreams)
+                {
+                    if (!stream.IsAudioStream) continue;
+
+                    string streamBitrate = string.Format(
+                        "{0:D} kbps",
+                        (int)Math.Round((double)stream.BitRate / 1000));
+
+                    report += string.Format(
+                        "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
+                        (stream.IsHidden ? "* " : "") + stream.CodecName,
+                        stream.LanguageName,
+                        streamBitrate,
+                        stream.Description);
+
+                    summary += string.Format(
+                        (stream.IsHidden ? "* " : "") + "Audio: {0} / {1} / {2}\r\n",
+                        stream.LanguageName,
+                        stream.CodecName,
+                        stream.Description);
+                }
+            }
+
+            if (playlist.GraphicsStreams.Count > 0)
+            {
+                report += "\r\n";
+                report += "SUBTITLES:\r\n";
+                report += "\r\n";
+                report += string.Format(
+                    "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
+                    "Codec",
+                    "Language",
+                    "Bitrate",
+                    "Description");
+                report += string.Format(
+                    "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
+                    "-----",
+                    "--------",
+                    "-------",
+                    "-----------");
+
+                foreach (TSStream stream in playlist.SortedStreams)
+                {
+                    if (!stream.IsGraphicsStream) continue;
+
+                    string streamBitrate = string.Format(
+                        "{0:F3} kbps",
+                        (double)stream.BitRate / 1000);
+
+                    report += string.Format(
+                        "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
+                        (stream.IsHidden ? "* " : "") + stream.CodecName,
+                        stream.LanguageName,
+                        streamBitrate,
+                        stream.Description);
+
+                    summary += string.Format(
+                        (stream.IsHidden ? "* " : "") + "Subtitle: {0} / {1}\r\n",
+                        stream.LanguageName,
+                        streamBitrate,
+                        stream.Description);
+                }
+            }
         }
     }
 }

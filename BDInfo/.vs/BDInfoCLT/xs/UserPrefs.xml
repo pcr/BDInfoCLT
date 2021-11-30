@@ -1,0 +1,39 @@
+﻿<Properties StartupConfiguration="{CF10DEBE-9A1B-4CD6-B566-E6013C1E6CB9}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="CLOptions.cs">
+    <Files>
+      <File FileName="Program.cs" Line="1" Column="1" />
+      <File FileName="CLOptions.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="BDInfoCLT" expanded="True">
+            <Node name="BDInfoCLT" expanded="True">
+              <Node name="Properties" expanded="True">
+                <Node name="Resources.resx" expanded="True" />
+                <Node name="Settings.settings" expanded="True" />
+              </Node>
+              <Node name="CLOptions.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.BDInfoCLT PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/pcr/Documents/GitHub/BDInfoCLT/BDInfo/BDROM/BDROM.cs" relfile="BDROM/BDROM.cs" line="114" column="1" />
+      <Breakpoint file="/Users/pcr/Documents/GitHub/BDInfoCLT/BDInfo/BDROM/BDROM.cs" relfile="BDROM/BDROM.cs" line="219" column="1" />
+      <Breakpoint file="/Users/pcr/Documents/GitHub/BDInfoCLT/BDInfo/BDROM/BDROM.cs" relfile="BDROM/BDROM.cs" line="240" column="1" />
+      <Breakpoint file="/Users/pcr/Documents/GitHub/BDInfoCLT/BDInfo/BDROM/BDROM.cs" relfile="BDROM/BDROM.cs" line="266" column="1" />
+      <Breakpoint file="/Users/pcr/Documents/GitHub/BDInfoCLT/BDInfo/runner.cs" relfile="runner.cs" line="38" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

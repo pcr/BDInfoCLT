@@ -32,83 +32,58 @@ namespace BDInfoCLT
     {
         static void Main(string[] args)
         {
-            var options = new MyOptions();
+            var options = new CLOptions();
+
             // Parse in 'strict mode', success or quit
-            if(CommandLine.Parser.Default.ParseArguments(args, options))
+            if (!CommandLine.Parser.Default.ParseArguments(args, options))
             {
-                //validatePath(options.input);
-                //validatePath(options.output);
-
-                runner run = new runner();
-                run.InitBDROM(options.input);
-
-                //If mpsl specified, select playlist in a different way
-                if (options.playlistsToScan != null)
-                {
-                    try
-                    {
-                        System.Console.WriteLine("-m or --mpls specified, running in non-interactive mode...");
-                        System.Console.Write("Atempting to find ");
-                        System.Console.Write(String.Join<String>(", ", options.playlistsToScan) + Environment.NewLine);
-                        
-                        run.SelectPlayList(options.playlistsToScan);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Console.WriteLine("ERROR: " + ex.Message);
-                        Environment.Exit(-1);
-                    }
-                }
-                else
-                {
-                    run.SelectPlayList();
-                }
-                
-                run.AddStreamFilesInPlaylists();
-                run.ScanBDROM();
-                run.GenerateReport(options.output);
-            }
-        }
-
-        //Returns 
-        public static void validatePath(String pathName)
-        {
-            if (pathName == null)
-            {
-                System.Console.WriteLine("Usage: BDInfoCLT <BD Folder> <Save Path>");
                 Environment.Exit(-1);
             }
-            if(!Directory.Exists(pathName))
+
+            int ret = options.validate();
+            if (ret != 0)
             {
-                System.Console.WriteLine("folder '{0}' not found!", pathName);
-                Environment.Exit(-1);
+                Environment.Exit(ret);
             }
-        }
-    }
 
-    class MyOptions
-    {
-        [ValueOption(0)]
-        public string input { get; set; }
+            if (options.showVersion)
+            {
+                options.printVersion();
+                Environment.Exit(0);
+            }
 
-        [ValueOption(1)]
-        public string output { get; set; }
+            runner run = new runner();
+            run.InitBDROM(options);
 
-        [OptionList('m', "mpls", Required = false, HelpText = "Specify the playlists to scan, non-interactive")]
-        public List<String> playlistsToScan { get; set; }
+            //If mpsl specified, select playlist in a different way
+            if (options.playlistsToScan != null)
+            {
+                try
+                {
+                    if (options.verbose)
+                    {
+                        Console.WriteLine("-m or --mpls specified, running in non-interactive mode...");
+                        Console.Write("Atempting to find ");
+                        Console.Write(String.Join<String>(", ", options.playlistsToScan) + Environment.NewLine);
+                    }
 
-        [HelpOption]
-        public string GetUsage()
-        {
-            var help = new HelpText {
-                Heading = new HeadingInfo("BDInfoCLT", (Assembly.GetExecutingAssembly().GetName().Version).ToString()),
-                AdditionalNewLineAfterOption = true,
-                AddDashesToOption = true
-            };
-            help.AddPreOptionsLine("Licensed under LGPL V2.1");
-            help.AddPreOptionsLine("Usage: BDInfoCLT <BD Folder> <Save Path>");
-            help.AddOptions(this);
-            return help;
+                    run.SelectPlayList(options.playlistsToScan);
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine("ERROR: " + ex.Message);
+                    Environment.Exit(-1);
+                }
+            }
+            else
+            {
+                run.SelectPlayList();
+            }
+
+            run.AddStreamFilesInPlaylists();
+            run.ScanBDROM(options.fullScan);
+
+            run.GenerateReport(options);
         }
     }
 }
